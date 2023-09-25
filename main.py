@@ -18,6 +18,7 @@ class Block:
 class Blockchain:
     def __init__(self):
         self.chain = [self.create_genesis_block()]
+        self.difficulty = 4  
 
     def create_genesis_block(self):
         return Block(0, "0", int(time.time()), [])
@@ -56,6 +57,18 @@ class Blockchain:
             merkle_tree = next_level
 
         return merkle_tree[0]
+
+    def mine_block(self):
+        last_block = self.get_last_block()
+        new_block = Block(last_block.index + 1, last_block.hash, int(time.time()), last_block.transactions)
+        
+        # Proof-of-work mechanism
+        while new_block.hash[:self.difficulty] != '0' * self.difficulty:
+            new_block.nonce += 1
+            new_block.hash = new_block.calculate_hash()
+        
+        print(f"Block mined with hash: {new_block.hash}")
+        self.add_block(new_block)
 
 def is_valid_block(block, previous_block):
     if block.index != previous_block.index + 1:
